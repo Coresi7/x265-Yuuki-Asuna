@@ -2,7 +2,7 @@
 #define X265_AVS_H
 
 #include "input.h"
-#include <avisynth/avisynth_c.h>
+#include <avisynth_c.h>
 
 #if _WIN32
 #include <windows.h>
