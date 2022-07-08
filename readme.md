@@ -1,3 +1,6 @@
+## This is a fork from https://github.com/msg7086/x265-Yuuki-Asuna.git
+## To sync latest modifications from https://bitbucket.org/multicoreware/x265_git.git
+
 # x265 HEVC Encoder
 
 ## Yuuki Asuna Mod
