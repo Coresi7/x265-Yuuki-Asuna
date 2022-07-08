@@ -1,6 +1,6 @@
 @echo off
 if "%VS170COMNTOOLS%" == "" (
-  msg "%username%" "Visual Studio 19(Visual Studio 2022) not detected, you can choose to run VsDevCmd.bat first before run this. Should locate at [VS2022 Installation Folder]\Common7\Tools"
+  msg "%username%" "Visual Studio 19(Visual Studio 2022) not detected, you can choose to run VsDevCmd.bat first before run this, which can be found at [VS2022 Installation Folder]\Common7\Tools"
   exit 1
 )
 if not exist x265.sln (
