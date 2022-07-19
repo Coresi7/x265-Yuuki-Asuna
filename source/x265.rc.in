@@ -19,7 +19,7 @@ VS_VERSION_INFO VERSIONINFO
         VALUE "FileDescription",  "HEVC video encoder"
         VALUE "FileVersion",      "@X265_VERSION@"
         VALUE "InternalName",     "x265"
-        VALUE "LegalCopyright",   "Multicoreware: GPLv2 or commercial"
+        VALUE "LegalCopyright",   "Multicoreware, Yuuki & Louisa: GPLv2 or commercial"
         VALUE "OriginalFilename", "@X265_FNAME@"
         VALUE "ProductName",      "x265"
         VALUE "ProductVersion",   "@X265_VERSION@"
