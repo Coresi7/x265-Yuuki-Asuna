@@ -638,7 +638,7 @@ int x265_param_default_preset(x265_param* param, const char* preset, const char*
         }
         else if (!strncmp(tune, "littlepox", 9) || !strncmp(tune, "lp", 2) ||
                  !strncmp(tune, "vcb-s", 5) || !strncmp(tune, "vcbs", 4)) {
-            param->searchRange = 25; //down from 57
+            param->searchRange = 40; // up from 25
             param->bEnableAMP = 0;
             param->bEnableRectInter = 0;
             param->rc.aqStrength = 0.8; //down from 1.0
@@ -664,24 +664,29 @@ int x265_param_default_preset(x265_param* param, const char* preset, const char*
             param->crQpOffset = -2; //better chroma quality to compensate 420 subsampling
             param->rc.pbFactor = 1.2; //down from 1.3
             param->bEnableWeightedBiPred = 1;
+            // littlepox specified
             if (tune[0] == 'l') {
                 // Mid bitrate anime
                 param->rc.rfConstant = 20;
                 param->psyRd = 1.5; //down
                 param->psyRdoq = 0.8; //down
 
+                // littlepox++ additional
                 if (strstr(tune, "++")) {
                     if (param->maxNumReferences < 2) param->maxNumReferences = 2;
                     if (param->subpelRefine < 3) param->subpelRefine = 3;
                     if (param->lookaheadDepth < 60) param->lookaheadDepth = 60;
-                    param->searchRange = 38; //down from 57
+                    param->searchRange = 57; // up from 38
                 }
-            } else {
+            }
+            // vcb-s specified
+            else {
                 // High bitrate anime (bluray) or film
                 param->rc.rfConstant = 18;
                 param->psyRd = 1.8; //down
                 param->psyRdoq = 1.0; //same
 
+                // vcb-s++ additional
                 if (strstr(tune, "++")) {
                     if (param->maxNumReferences < 3) param->maxNumReferences = 3;
                     if (param->subpelRefine < 3) param->subpelRefine = 3;
@@ -689,7 +694,7 @@ int x265_param_default_preset(x265_param* param, const char* preset, const char*
                     param->bEnableRectInter = 1;
                     param->limitTU = 4;
                     if (param->lookaheadDepth < 60) param->lookaheadDepth = 60;
-                    param->searchRange = 38; //down from 57
+                    param->searchRange = 57; // up from 38
                 }
             }
         }
