@@ -1,6 +1,7 @@
 @echo off
 if "%VS170COMNTOOLS%" == "" (
   msg "%username%" "Visual Studio 17 not detected"
+  pause
   exit 1
 )
 
@@ -27,10 +28,12 @@ if exist x265.sln (
 @cd ..\8bit
 if not exist x265-static-main10.lib (
   msg "%username%" "10bit build failed"
+  pause
   exit 1
 )
 if not exist x265-static-main12.lib (
   msg "%username%" "12bit build failed"
+  pause
   exit 1
 )
 cmake -G "Visual Studio 17 Win64" ../../../source -DEXTRA_LIB="x265-static-main10.lib;x265-static-main12.lib" -DLINKED_10BIT=ON -DLINKED_12BIT=ON
