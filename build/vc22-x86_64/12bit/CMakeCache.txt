@@ -14,6 +14,8 @@
 # EXTERNAL cache entries
 ########################
 
+AVIS_FOLDER:STRING=C:/Program Files (x86)/AviSynth+
+
 //Install location of executables
 BIN_INSTALL_DIR:STRING=bin
 
@@ -220,22 +222,22 @@ ENABLE_AVISYNTH:BOOL=ON
 ENABLE_CLI:BOOL=OFF
 
 //Enable dynamic HDR10 compilation
-ENABLE_HDR10_PLUS:BOOL=OFF
+ENABLE_HDR10_PLUS:BOOL=ON
 
 //Enable LAVF decoder
 ENABLE_LAVF:BOOL=OFF
 
 //Enable L-SMASH muxer
-ENABLE_LSMASH:BOOL=OFF
+ENABLE_LSMASH:BOOL=ON
 
 //Enable Haali Matroska muxer
 ENABLE_MKV:BOOL=OFF
 
 //Enable Position Independent Code
-ENABLE_PIC:BOOL=OFF
+ENABLE_PIC:BOOL=ON
 
 //Enable PPA profiling instrumentation
-ENABLE_PPA:BOOL=OFF
+ENABLE_PPA:BOOL=ON
 
 //Build shared library
 ENABLE_SHARED:BOOL=OFF
@@ -244,7 +246,7 @@ ENABLE_SHARED:BOOL=OFF
 ENABLE_STATIC_LAVF:BOOL=ON
 
 //Enable SVT HEVC Encoder
-ENABLE_SVT_HEVC:BOOL=OFF
+ENABLE_SVT_HEVC:BOOL=ON
 
 //Enable Unit Tests
 ENABLE_TESTS:BOOL=OFF
@@ -256,7 +258,7 @@ ENABLE_UTF8:BOOL=ON
 ENABLE_VPYSYNTH:BOOL=ON
 
 //Enable Vtune profiling instrumentation
-ENABLE_VTUNE:BOOL=OFF
+ENABLE_VTUNE:BOOL=ON
 
 //Enable ZImg scaling libary
 ENABLE_ZIMG:BOOL=OFF
@@ -285,11 +287,38 @@ HG_EXECUTABLE:FILEPATH=HG_EXECUTABLE-NOTFOUND
 //Store pixel samples as 16bit values (Main10/Main12)
 HIGH_BIT_DEPTH:BOOL=ON
 
+//Path to a file.
+LIBAVCODEC_INCLUDE_DIR:PATH=LIBAVCODEC_INCLUDE_DIR-NOTFOUND
+
+//Path to a file.
+LIBAVFORMAT_INCLUDE_DIR:PATH=LIBAVFORMAT_INCLUDE_DIR-NOTFOUND
+
+//Path to a file.
+LIBAVUTIL_INCLUDE_DIR:PATH=LIBAVUTIL_INCLUDE_DIR-NOTFOUND
+
+//Path to a file.
+LIBSWRESAMPLE_INCLUDE_DIR:PATH=LIBSWRESAMPLE_INCLUDE_DIR-NOTFOUND
+
 //Install location of libraries
 LIB_INSTALL_DIR:STRING=lib
 
+//10bit libx265 is being linked with this library
+LINKED_10BIT:BOOL=ON
+
+//12bit libx265 is being linked with this library
+LINKED_12BIT:BOOL=ON
+
+//8bit libx265 is being linked with this library
+LINKED_8BIT:BOOL=ON
+
+//Path to a library.
+LSMASH:FILEPATH=E:/git/l-smash/x64/Release
+
+//The lib directory of L-SMASH
+LSMASH_LIB_DIR:STRING=E:/git/l-smash/x64/Release
+
 //The source directory of L-SMASH
-LSMASH_SOURCE_DIR:STRING=lsmash
+LSMASH_SOURCE_DIR:PATH=E:/git/l-smash
 
 //Support Main12 instead of Main10
 MAIN12:BOOL=ON
@@ -302,10 +331,16 @@ NATIVE_BUILD:BOOL=OFF
 
 //Specify the source directory of L-SMASH. You may clone a repo
 // from https://github.com/l-smash/l-smash
-SPECIFY_LSMASH_SOURCE_DIR:BOOL=OFF
+SPECIFY_LSMASH_SOURCE_DIR:BOOL=ON
 
 //Statically link C runtime for release builds
 STATIC_LINK_CRT:BOOL=OFF
+
+//Path to a file.
+SVT_HEVC_INCLUDE_DIR:PATH=SVT_HEVC_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+SVT_HEVC_LIBRARY:FILEPATH=SVT_HEVC_LIBRARY-NOTFOUND
 
 //VLD include directory
 VLD_INCLUDE_DIR:PATH=VLD_INCLUDE_DIR-NOTFOUND
@@ -316,11 +351,25 @@ VLD_LIBRARY_DEBUG:FILEPATH=VLD_LIBRARY_DEBUG-NOTFOUND
 //VLD root directory
 VLD_ROOT_DIR:PATH=VLD_ROOT_DIR-NOTFOUND
 
+VS_FOLDER:STRING=C:/Program Files/VapourSynth
+
+//Vtune root directory
+VTUNE_DIR:PATH=VTUNE_DIR-NOTFOUND
+
 //Stop compiles on first warning
 WARNINGS_AS_ERRORS:BOOL=OFF
 
 //Make binaries compatible with Windows XP and Vista
 WINXP_SUPPORT:BOOL=OFF
+
+//Value Computed by CMake
+dynamicHDR10_BINARY_DIR:STATIC=E:/git/x265-Yuuki-Asuna/build/vc22-x86_64/12bit/dynamicHDR10
+
+//Value Computed by CMake
+dynamicHDR10_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+dynamicHDR10_SOURCE_DIR:STATIC=E:/git/x265-Yuuki-Asuna/source/dynamicHDR10
 
 //Value Computed by CMake
 x265_BINARY_DIR:STATIC=E:/git/x265-Yuuki-Asuna/build/vc22-x86_64/12bit
@@ -427,7 +476,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //noop for ranlib
@@ -479,6 +528,16 @@ EXPORT_C_API-ADVANCED:INTERNAL=1
 EXTRA_LIB-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: EXTRA_LINK_FLAGS
 EXTRA_LINK_FLAGS-ADVANCED:INTERNAL=1
+//Details about finding AVISYNTH
+FIND_PACKAGE_MESSAGE_DETAILS_AVISYNTH:INTERNAL=[C:/Program Files (x86)/AviSynth+/FilterSDK/include][ON][v()]
+//Details about finding Git
+FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[C:/Program Files/Git/cmd/git.exe][v2.36.1.windows.1()]
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[C:/Strawberry/perl/bin/pkg-config.bat][v0.26()]
+//Details about finding VAPOURSYNTH
+FIND_PACKAGE_MESSAGE_DETAILS_VAPOURSYNTH:INTERNAL=[C:/Program Files/VapourSynth/sdk/include][ON][v()]
+//Details about finding Vapoursynth
+FIND_PACKAGE_MESSAGE_DETAILS_Vapoursynth:INTERNAL=[C:/Program Files/VapourSynth/sdk/include][ON][v()]
 //Details about finding nasm
 FIND_PACKAGE_MESSAGE_DETAILS_nasm:INTERNAL=[C:/Program Files/NASM/nasm.exe][v2.15.05()]
 //ADVANCED property for variable: FPROFILE_GENERATE
@@ -487,6 +546,8 @@ FPROFILE_GENERATE-ADVANCED:INTERNAL=1
 FPROFILE_USE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: GIT_EXECUTABLE
 GIT_EXECUTABLE-ADVANCED:INTERNAL=1
+//Have includes getopt.h
+HAVE_GETOPT_H:INTERNAL=
 //Have include inttypes.h
 HAVE_INT_TYPES_H:INTERNAL=1
 //Have include stdint.h
@@ -499,8 +560,16 @@ HG_EXECUTABLE-ADVANCED:INTERNAL=1
 MSVC_ASMS:INTERNAL=ipfilter16.asm;h4-ipfilter16.asm;pixel-a.asm;const-a.asm;cpu-a.asm;ssd-a.asm;mc-a.asm;mc-a2.asm;pixel-util8.asm;blockcopy8.asm;pixeladd8.asm;dct8.asm;seaintegral.asm;sad16-a.asm;intrapred16.asm;v4-ipfilter16.asm;h-ipfilter16.asm;loopfilter.asm
 //ADVANCED property for variable: NATIVE_BUILD
 NATIVE_BUILD-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SVT_HEVC_INCLUDE_DIR
+SVT_HEVC_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SVT_HEVC_LIBRARY
+SVT_HEVC_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: VLD_INCLUDE_DIR
 VLD_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: VLD_LIBRARY_DEBUG
 VLD_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: VTUNE_DIR
+VTUNE_DIR-ADVANCED:INTERNAL=1
+//Test _cpp_latest_flag_supported
+_cpp_latest_flag_supported:INTERNAL=
 
