@@ -285,7 +285,7 @@ GIT_EXECUTABLE:FILEPATH=C:/Program Files/Git/cmd/git.exe
 HG_EXECUTABLE:FILEPATH=HG_EXECUTABLE-NOTFOUND
 
 //Store pixel samples as 16bit values (Main10/Main12)
-HIGH_BIT_DEPTH:BOOL=ON
+HIGH_BIT_DEPTH:BOOL=OFF
 
 //Path to a file.
 LIBAVCODEC_INCLUDE_DIR:PATH=LIBAVCODEC_INCLUDE_DIR-NOTFOUND
@@ -563,7 +563,7 @@ HAVE_STRTOK_R:INTERNAL=
 //ADVANCED property for variable: HG_EXECUTABLE
 HG_EXECUTABLE-ADVANCED:INTERNAL=1
 //nasm sources
-MSVC_ASMS:INTERNAL=ipfilter16.asm;h4-ipfilter16.asm;pixel-a.asm;const-a.asm;cpu-a.asm;ssd-a.asm;mc-a.asm;mc-a2.asm;pixel-util8.asm;blockcopy8.asm;pixeladd8.asm;dct8.asm;seaintegral.asm;sad16-a.asm;intrapred16.asm;v4-ipfilter16.asm;h-ipfilter16.asm;loopfilter.asm
+MSVC_ASMS:INTERNAL=ipfilter8.asm;pixel-a.asm;const-a.asm;cpu-a.asm;ssd-a.asm;mc-a.asm;mc-a2.asm;pixel-util8.asm;blockcopy8.asm;pixeladd8.asm;dct8.asm;seaintegral.asm;sad-a.asm;intrapred8.asm;intrapred8_allangs.asm;v4-ipfilter8.asm;h-ipfilter8.asm;loopfilter.asm
 //ADVANCED property for variable: NATIVE_BUILD
 NATIVE_BUILD-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: SVT_HEVC_INCLUDE_DIR
