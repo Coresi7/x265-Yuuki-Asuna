@@ -309,7 +309,7 @@ LINKED_10BIT:BOOL=ON
 LINKED_12BIT:BOOL=ON
 
 //8bit libx265 is being linked with this library
-LINKED_8BIT:BOOL=ON
+LINKED_8BIT:BOOL=OFF
 
 //Path to a library.
 LSMASH:FILEPATH=E:/git/l-smash/x64/Release
