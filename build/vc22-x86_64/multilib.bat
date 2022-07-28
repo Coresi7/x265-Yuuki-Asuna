@@ -1,42 +1,47 @@
 @echo off
 if "%VS170COMNTOOLS%" == "" (
+  vsdevcmd.bat
+)
+
+mkdir 8bit
+if not exist CMakeCache.txt (
+    copy ..\CMakeDemo\CMakeCache.txt %~dp0\8bit
+)
+
+if "%VS170COMNTOOLS%" == "" (
   msg "%username%" "Visual Studio 17 not detected"
-  pause
   goto end
 )
 
 call "%VS170COMNTOOLS%\..\..\VC\vcvarsall.bat"
 
-@mkdir 12bit
-@mkdir 10bit
-@mkdir 8bit
+mkdir 12bit
+mkdir 10bit
 
-@cd 12bit
-cmake -G "Visual Studio 17 Win64" ../../../source -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON
+pushd 12bit
+cmake -G "Visual Studio 17" ../../../source -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DMAIN12=ON
 if exist x265.sln (
   MSBuild /property:Configuration="Release" x265.sln
   copy/y Release\x265-static.lib ..\8bit\x265-static-main12.lib
 )
 
-@cd ..\10bit
-cmake -G "Visual Studio 17 Win64" ../../../source -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF
+pushd ..\10bit
+cmake -G "Visual Studio 17" ../../../source -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF -DENABLE_SHARED=OFF -DENABLE_CLI=OFF
 if exist x265.sln (
   MSBuild /property:Configuration="Release" x265.sln
   copy/y Release\x265-static.lib ..\8bit\x265-static-main10.lib
 )
 
-@cd ..\8bit
+pushd ..\8bit
 if not exist x265-static-main10.lib (
   msg "%username%" "10bit build failed"
-  pause
   goto end
 )
 if not exist x265-static-main12.lib (
   msg "%username%" "12bit build failed"
-  pause
   goto end
 )
-cmake -G "Visual Studio 17 Win64" ../../../source -DEXTRA_LIB="x265-static-main10.lib;x265-static-main12.lib" -DLINKED_10BIT=ON -DLINKED_12BIT=ON
+cmake -G "Visual Studio 17" ../../../source -DEXTRA_LIB="x265-static-main10.lib;x265-static-main12.lib" -DLINKED_10BIT=ON -DLINKED_12BIT=ON
 if exist x265.sln (
   MSBuild /property:Configuration="Release" x265.sln
   :: combine static libraries (ignore warnings caused by winxp.cpp hacks)
@@ -45,4 +50,4 @@ if exist x265.sln (
 )
 
 :end
-pause
+popd
