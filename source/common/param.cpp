@@ -701,7 +701,7 @@ namespace X265_NS {
                     }
                 }
             }
-            else if (!strcmp(tune, "sky"))
+            else if (!strncmp(tune, "sky", 3))
             {
                 // vcb-s(++) / lp(++) tune
                 param->searchRange = 40; // up from 25
