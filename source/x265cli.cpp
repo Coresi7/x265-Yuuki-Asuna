@@ -139,7 +139,8 @@ namespace X265_NS {
         H0("-t/--tune <string>               Tune the settings for a particular type of source or situation:\n");
         H0("             (mid bitrate anime) littlepox/lp, (slower) littlepox++/lp++,\n");
         H0("  (high bitrate anime BD / film) vcb-s/vcbs,   (slower) vcb-s++/vcbs++,\n");
-        H0("                                 psnr, ssim, grain, zerolatency, fastdecode\n");
+        H0("  (vcb-s++ with HDSky optimized) (1080p)sky,   (4K, slower)sky++,\n");
+        H0("                 (x265 official) psnr, ssim, grain, zerolatency, fastdecode\n");
         H0("\nQuad-Tree size and depth:\n");
         H0("-s/--ctu <64|32|16>              Maximum CU size (WxH). Default %d\n", param->maxCUSize);
         H0("   --min-cu-size <64|32|16|8>    Minimum CU size (WxH). Default %d\n", param->minCUSize);
