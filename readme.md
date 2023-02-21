@@ -8,4 +8,4 @@ To report a bug due to patches, create a new issue here. To report a x265 bug, p
 
 x265 is free to use under the [GNU GPL](https://www.gnu.org/licenses/gpl-2.0.html) and is also available under a commercial license.
 
-Sync status: Commit [0b75c44](https://bitbucket.org/multicoreware/x265_git/commits/0b75c44c10e605fe9e9ebed58f04a46271131827) at 2022-10-05
+Sync status: Commit [7f247b6](https://bitbucket.org/multicoreware/x265_git/commits/7f247b623f12f117c6d6fa8e282996eda9e0ccf7) at 2023-2-21
