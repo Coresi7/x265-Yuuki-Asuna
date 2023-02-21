@@ -603,7 +603,10 @@ if((MSVC_IDE OR XCODE OR GCC) AND ENABLE_ASSEMBLY)
             list(APPEND ASM_OBJS ${ASM}.${SUFFIX})
             add_custom_command(
                 OUTPUT ${ASM}.${SUFFIX}
-                COMMAND ${NASM_EXECUTABLE} ARGS ${NASM_FLAGS} ${ASM_SRC} -o ${ASM}.${SUFFIX}
+                # COMMAND ${NASM_EXECUTABLE} ARGS ${NASM_FLAGS} ${ASM_SRC} -o ${ASM}.${SUFFIX}
+                # hide warnings for dropping trailing empty parameter in call to multi-line macro
+                # referenced from https://bitbucket.org/multicoreware/x265_git/issues/559/warnings-when-assembling-with-nasm-215
+                COMMAND ${NASM_EXECUTABLE} ARGS -w-macro-params-legacy ${NASM_FLAGS} ${ASM_SRC} -o ${ASM}.${SUFFIX}
                 DEPENDS ${ASM_SRC})
         endforeach()
     endif()
