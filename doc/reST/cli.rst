@@ -1328,6 +1328,11 @@ Temporal / motion search options
 	Search range for HME level 0, 1 and 2.
 	The Search Range for each HME level must be between 0 and 32768(excluding).
 	Default search range is 16,32,48 for level 0,1,2 respectively.
+	
+.. option:: --mcstf, --no-mcstf
+
+    Enable Motion Compensated Temporal filtering.
+	Default: disabled
 
 Spatial/intra options
 =====================
@@ -1469,24 +1474,10 @@ Slice decision options
 
 .. option:: --hist-scenecut, --no-hist-scenecut
 
-	Indicates that scenecuts need to be detected using luma edge and chroma histograms.
-	:option:`--hist-scenecut` enables scenecut detection using the histograms.
-	It also uses the intra and inter cost info to arrive at a scenecut decision from the default scenecut method.
-	:option:`--no-hist-scenecut` disables histogram based scenecut algorithm.
+	Scenecuts detected based on histogram, intensity and variance of the picture.
+	:option:`--hist-scenecut` enables or :option:`--no-hist-scenecut` disables scenecut detection based on
+	histogram.
 	
-.. option:: --hist-threshold <0.0..1.0>
-
-	This value represents the threshold for normalized SAD of edge histograms used in scenecut detection.
-	This requires :option:`--hist-scenecut` to be enabled. For example, a value of 0.2 indicates that a frame with normalized SAD value 
-	greater than 0.2 against the previous frame as scenecut. 
-	Increasing the threshold reduces the number of scenecuts detected.
-	Default 0.03.
-
-.. option:: --traditional-scenecut, --no-traditional-scenecut
-
-	Enable traditional scenecut detection using intra and inter cost when :option:`--hist-scenecut` is used.
-	Default enabled.
-
 .. option:: --radl <integer>
 	
 	Number of RADL pictures allowed infront of IDR. Requires closed gop interval.
@@ -1768,6 +1759,12 @@ Quality, rate control and rate distortion options
 	Default 1.0.
 	**Range of values:** 0.0 to 3.0
 
+.. option:: --sbrc --no-sbrc
+
+	To enable and disable segment based rate control.Segment duration depends on the
+	keyframe interval specified.If unspecified,default keyframe interval will be used.
+	Default: disabled.
+
 .. option:: --hevc-aq
 
 	Enable adaptive quantization
@@ -1978,12 +1975,18 @@ Quality, rate control and rate distortion options
 	
 	**CLI ONLY**
 
+.. option:: --scenecut-qp-config <filename>
+
+	Specify a text file which contains the scenecut aware QP options.
+	The options include :option:`--scenecut-aware-qp` and :option:`--masking-strength`
+
+	**CLI ONLY**
+
 .. option:: --scenecut-aware-qp <integer>
 
 	It reduces the bits spent on the inter-frames within the scenecut window
 	before and after a scenecut by increasing their QP in ratecontrol pass2 algorithm
-	without any deterioration in visual quality. If a scenecut falls within the window,
-	the QP of the inter-frames after this scenecut will not be modified.
+	without any deterioration in visual quality.
 	:option:`--scenecut-aware-qp` works only with --pass 2. Default 0.
 
 	+-------+---------------------------------------------------------------+
@@ -2008,48 +2011,83 @@ Quality, rate control and rate distortion options
 	for the QP increment for inter-frames when :option:`--scenecut-aware-qp`
 	is enabled.
 
-	When :option:`--scenecut-aware-qp` is::
+	When :option:`--scenecut-aware-qp` is:
+
 	* 1 (Forward masking):
-	--masking-strength <fwdWindow,fwdRefQPDelta,fwdNonRefQPDelta>
+	--masking-strength <fwdMaxWindow,fwdRefQPDelta,fwdNonRefQPDelta>
+	or 
+	--masking-strength <fwdWindow1,fwdRefQPDelta1,fwdNonRefQPDelta1,fwdWindow2,fwdRefQPDelta2,fwdNonRefQPDelta2,
+						fwdWindow3,fwdRefQPDelta3,fwdNonRefQPDelta3,fwdWindow4,fwdRefQPDelta4,fwdNonRefQPDelta4,
+						fwdWindow5,fwdRefQPDelta5,fwdNonRefQPDelta5,fwdWindow6,fwdRefQPDelta6,fwdNonRefQPDelta6>
 	* 2 (Backward masking):
-	--masking-strength <bwdWindow,bwdRefQPDelta,bwdNonRefQPDelta>
+	--masking-strength <bwdMaxWindow,bwdRefQPDelta,bwdNonRefQPDelta>
+	or 
+	--masking-strength <bwdWindow1,bwdRefQPDelta1,bwdNonRefQPDelta1,bwdWindow2,bwdRefQPDelta2,bwdNonRefQPDelta2,
+						bwdWindow3,bwdRefQPDelta3,bwdNonRefQPDelta3,bwdWindow4,bwdRefQPDelta4,bwdNonRefQPDelta4,
+						bwdWindow5,bwdRefQPDelta5,bwdNonRefQPDelta5,bwdWindow6,bwdRefQPDelta6,bwdNonRefQPDelta6>
 	* 3 (Bi-directional masking):
-	--masking-strength <fwdWindow,fwdRefQPDelta,fwdNonRefQPDelta,bwdWindow,bwdRefQPDelta,bwdNonRefQPDelta>
+	--masking-strength <fwdMaxWindow,fwdRefQPDelta,fwdNonRefQPDelta,bwdMaxWindow,bwdRefQPDelta,bwdNonRefQPDelta>
+	or 
+	--masking-strength <fwdWindow1,fwdRefQPDelta1,fwdNonRefQPDelta1,fwdWindow2,fwdRefQPDelta2,fwdNonRefQPDelta2,
+						fwdWindow3,fwdRefQPDelta3,fwdNonRefQPDelta3,fwdWindow4,fwdRefQPDelta4,fwdNonRefQPDelta4,
+						fwdWindow5,fwdRefQPDelta5,fwdNonRefQPDelta5,fwdWindow6,fwdRefQPDelta6,fwdNonRefQPDelta6,
+						bwdWindow1,bwdRefQPDelta1,bwdNonRefQPDelta1,bwdWindow2,bwdRefQPDelta2,bwdNonRefQPDelta2,
+						bwdWindow3,bwdRefQPDelta3,bwdNonRefQPDelta3,bwdWindow4,bwdRefQPDelta4,bwdNonRefQPDelta4,
+						bwdWindow5,bwdRefQPDelta5,bwdNonRefQPDelta5,bwdWindow6,bwdRefQPDelta6,bwdNonRefQPDelta6>
 
 	+-----------------+---------------------------------------------------------------+
 	| Parameter       | Description                                                   |
 	+=================+===============================================================+
-	| fwdWindow       | The duration(in milliseconds) for which there is a reduction  |
-	|                 | in the bits spent on the inter-frames after a scenecut by     |
-	|                 | increasing their QP. Default 500ms.                           |
-	|                 | **Range of values:** 0 to 1000                                |
+	| fwdMaxWindow    | The maximum duration(in milliseconds) for which there is a    |
+	|                 | reduction in the bits spent on the inter-frames after a       |
+	|                 | scenecut by increasing their QP. Default 500ms.               |
+	|                 | **Range of values:** 0 to 2000                                |
+	+-----------------+---------------------------------------------------------------+
+	| fwdWindow       | The duration of a sub-window(in milliseconds) for which there |
+	|                 | is a reduction in the bits spent on the inter-frames after a  |
+	|                 | scenecut by increasing their QP. Default 500ms.               |
+	|                 | **Range of values:** 0 to 2000                                |
 	+-----------------+---------------------------------------------------------------+
 	| fwdRefQPDelta   | The offset by which QP is incremented for inter-frames        |
 	|                 | after a scenecut. Default 5.                                  |
-	|                 | **Range of values:** 0 to 10                                  |
+	|                 | **Range of values:** 0 to 20                                  |
 	+-----------------+---------------------------------------------------------------+
 	| fwdNonRefQPDelta| The offset by which QP is incremented for non-referenced      |
 	|                 | inter-frames after a scenecut. The offset is computed from    |
 	|                 | fwdRefQPDelta when it is not explicitly specified.            |
-	|                 | **Range of values:** 0 to 10                                  |
+	|                 | **Range of values:** 0 to 20                                  |
 	+-----------------+---------------------------------------------------------------+
-	| bwdWindow       | The duration(in milliseconds) for which there is a reduction  |
-	|                 | in the bits spent on the inter-frames before a scenecut by    |
-	|                 | increasing their QP. Default 100ms.                           |
-	|                 | **Range of values:** 0 to 1000                                |
+	| bwdMaxWindow    | The maximum duration(in milliseconds) for which there is a    |
+	|                 | reduction in the bits spent on the inter-frames before a      |
+	|                 | scenecut by increasing their QP. Default 100ms.               |
+	|                 | **Range of values:** 0 to 2000                                |
+	+-----------------+---------------------------------------------------------------+
+	| bwdWindow       | The duration of a sub-window(in milliseconds) for which there |
+	|                 | is a reduction in the bits spent on the inter-frames before a |
+	|                 | scenecut by increasing their QP. Default 100ms.               |
+	|                 | **Range of values:** 0 to 2000                                |
 	+-----------------+---------------------------------------------------------------+
 	| bwdRefQPDelta   | The offset by which QP is incremented for inter-frames        |
 	|                 | before a scenecut. The offset is computed from                |
 	|                 | fwdRefQPDelta when it is not explicitly specified.            |
-	|                 | **Range of values:** 0 to 10                                  |
+	|                 | **Range of values:** 0 to 20                                  |
 	+-----------------+---------------------------------------------------------------+
 	| bwdNonRefQPDelta| The offset by which QP is incremented for non-referenced      |
 	|                 | inter-frames before a scenecut. The offset is computed from   |
 	|                 | bwdRefQPDelta when it is not explicitly specified.            |
-	|                 | **Range of values:** 0 to 10                                  |
+	|                 | **Range of values:** 0 to 20                                  |
 	+-----------------+---------------------------------------------------------------+
 
-	**CLI ONLY**
+	We can specify the value for the Use :option:`--masking-strength` parameter in different formats.
+	1. If we don't specify --masking-strength and specify only --scenecut-aware-qp, then default offset and window size values are considered.
+	2. If we specify --masking-strength with the format 1 mentioned above, the values of window, refQpDelta and nonRefQpDelta given by the user are taken for window 1 and the offsets for the remaining windows are derived with 15% difference between windows.
+	3. If we specify the --masking-strength with the format 2 mentioned above, the values of window, refQpDelta and nonRefQpDelta given by the user for each window from 1 to 6 are directly used.[NOTE: We can use this format to specify zero offsets for any particular window]
+
+	Sample config file:: (Format 2 Forward masking explained here)
+
+	--scenecut-aware-qp 1 --masking-strength 1000,8,12
+	
+	The above sample config file is available in `the downloads page <https://bitbucket.org/multicoreware/x265_git/downloads/scenecut_qp_config.txt>`_
 
 .. option:: --vbv-live-multi-pass, --no-vbv-live-multi-pass
 
@@ -2604,17 +2642,26 @@ Bitstream options
 	2. CRC
 	3. Checksum
 
-.. option:: --temporal-layers,--no-temporal-layers
+.. option:: --temporal-layers <integer>
 
-	Enable a temporal sub layer. All referenced I/P/B frames are in the
-	base layer and all unreferenced B frames are placed in a temporal
-	enhancement layer. A decoder may choose to drop the enhancement layer 
-	and only decode and display the base layer slices.
-	
-	If used with a fixed GOP (:option:`--b-adapt` 0) and :option:`--bframes`
-	3 then the two layers evenly split the frame rate, with a cadence of
-	PbBbP. You probably also want :option:`--no-scenecut` and a keyframe
-	interval that is a multiple of 4.
+	Enable specified number of temporal sub layers. For any frame in layer N,
+	all referenced frames are in the layer N or N-1.A decoder may choose to drop the enhancement layer
+	and only decode and display the base layer slices.Allowed number of temporal sub-layers
+	are 2 to 5.(2 and 5 inclusive)
+
+	When enabled,temporal layers 3 through 5 configures a fixed miniGOP with the number of bframes as shown below
+	unless miniGOP size is modified due to lookahead decisions.Temporal layer 2 is a special case that has
+	all reference frames in base layer and non-reference frames in enhancement layer without any constraint on the
+	number of bframes.Default disabled.
+	+----------------+--------+
+	| temporal layer | bframes|
+	+================+========+
+	| 3              | 3      |
+	+----------------+--------+
+	| 4              | 7      |
+    +----------------+--------+
+	| 5              | 15     |
+	+----------------+--------+
 
 .. option:: --log2-max-poc-lsb <integer>
 

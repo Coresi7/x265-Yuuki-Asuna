@@ -47,11 +47,6 @@ struct SPS;
 #define MIN_AMORTIZE_FRACTION 0.2
 #define CLIP_DURATION(f) x265_clip3(MIN_FRAME_DURATION, MAX_FRAME_DURATION, f)
 
-/*Scenecut Aware QP*/
-#define WINDOW1_DELTA           1.0 /* The offset for the frames coming in the window-1*/
-#define WINDOW2_DELTA           0.7 /* The offset for the frames coming in the window-2*/
-#define WINDOW3_DELTA           0.4 /* The offset for the frames coming in the window-3*/
-
 struct Predictor
 {
     double coeffMin;
@@ -260,6 +255,7 @@ public:
     RateControl(x265_param& p, Encoder *enc);
     bool init(const SPS& sps);
     void initHRD(SPS& sps);
+    void initVBV(const SPS& sps);
     void reconfigureRC();
 
     void setFinalFrameCount(int count);
@@ -320,6 +316,7 @@ protected:
     double tuneQScaleForGrain(double rcOverflow);
     void   splitdeltaPOC(char deltapoc[], RateControlEntry *rce);
     void   splitbUsed(char deltapoc[], RateControlEntry *rce);
+    void   checkAndResetCRF(RateControlEntry* rce);
 };
 }
 #endif // ifndef X265_RATECONTROL_H

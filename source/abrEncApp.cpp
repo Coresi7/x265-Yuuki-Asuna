@@ -186,15 +186,16 @@ namespace X265_NS {
             }
         }
 
-        for (auto &&i : m_cliopt.filters)
+        if (m_cliopt.zoneFile)
         {
-            i->setParam(m_param);
-            if (i->isFail())
+            if (!m_cliopt.parseZoneFile())
             {
-                return -1;
+                x265_log(NULL, X265_LOG_ERROR, "Unable to parse zonefile in %s\n");
+                fclose(m_cliopt.zoneFile);
+                m_cliopt.zoneFile = NULL;
             }
         }
-        m_cliopt.output->setParam(m_param);
+
         /* note: we could try to acquire a different libx265 API here based on
         * the profile found during option parsing, but it must be done before
         * opening an encoder */
@@ -522,16 +523,6 @@ ret:
             if (m_cliopt.reconPlayCmd)
                 reconPlay = new ReconPlay(m_cliopt.reconPlayCmd, *m_param);
             char* profileName = m_cliopt.encName ? m_cliopt.encName : (char *)"x265";
-
-            if (m_cliopt.zoneFile)
-            {
-                if (!m_cliopt.parseZoneFile())
-                {
-                    x265_log(NULL, X265_LOG_ERROR, "Unable to parse zonefile in %s\n", profileName);
-                    fclose(m_cliopt.zoneFile);
-                    m_cliopt.zoneFile = NULL;
-                }
-            }
 
             if (signal(SIGINT, sigint_handler) == SIG_ERR)
                 x265_log(m_param, X265_LOG_ERROR, "Unable to register CTRL+C handler: %s in %s\n",

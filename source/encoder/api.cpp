@@ -208,7 +208,6 @@ x265_encoder *x265_encoder_open(x265_param *p)
     memcpy(zoneParam, param, sizeof(x265_param));
     for (int i = 0; i < param->rc.zonefileCount; i++)
     {
-        param->rc.zones[i].startFrame = -1;
         encoder->configureZone(zoneParam, param->rc.zones[i].zoneParam);
     }
 
@@ -1050,6 +1049,7 @@ static const x265_api libapi =
     &PARAM_NS::x265_param_free,
     &PARAM_NS::x265_param_default,
     &PARAM_NS::x265_param_parse,
+    &PARAM_NS::x265_scenecut_aware_qp_param_parse,
     &PARAM_NS::x265_param_apply_profile,
     &PARAM_NS::x265_param_default_preset,
     &x265_picture_alloc,
@@ -1296,6 +1296,8 @@ FILE* x265_csvlog_open(const x265_param* param)
             if (param->csvLogLevel)
             {
                 fprintf(csvfp, "Encode Order, Type, POC, QP, Bits, Scenecut, ");
+                if (!!param->bEnableTemporalSubLayers)
+                    fprintf(csvfp, "Temporal Sub Layer ID, ");
                 if (param->csvLogLevel >= 2)
                     fprintf(csvfp, "I/P cost ratio, ");
                 if (param->rc.rateControlMode == X265_RC_CRF)
@@ -1409,6 +1411,8 @@ void x265_csvlog_frame(const x265_param* param, const x265_picture* pic)
     const x265_frame_stats* frameStats = &pic->frameData;
     fprintf(param->csvfpt, "%d, %c-SLICE, %4d, %2.2lf, %10d, %d,", frameStats->encoderOrder, frameStats->sliceType, frameStats->poc,
                                                                    frameStats->qp, (int)frameStats->bits, frameStats->bScenecut);
+    if (!!param->bEnableTemporalSubLayers)
+        fprintf(param->csvfpt, "%d,", frameStats->tLayer);
     if (param->csvLogLevel >= 2)
         fprintf(param->csvfpt, "%.2f,", frameStats->ipCostRatio);
     if (param->rc.rateControlMode == X265_RC_CRF)

@@ -149,9 +149,6 @@ static const struct option long_options[] =
     { "scenecut-bias",  required_argument, NULL, 0 },
     { "hist-scenecut",        no_argument, NULL, 0},
     { "no-hist-scenecut",     no_argument, NULL, 0},
-    { "hist-threshold", required_argument, NULL, 0},
-    { "traditional-scenecut", no_argument, NULL, 0},
-    { "no-traditional-scenecut", no_argument, NULL, 0},
     { "fades",                no_argument, NULL, 0 },
     { "no-fades",             no_argument, NULL, 0 },
     { "scenecut-aware-qp", required_argument, NULL, 0 },
@@ -190,6 +187,8 @@ static const struct option long_options[] =
     { "qp",             required_argument, NULL, 'q' },
     { "aq-mode",        required_argument, NULL, 0 },
     { "aq-strength",    required_argument, NULL, 0 },
+    { "sbrc",                 no_argument, NULL, 0 },
+    { "no-sbrc",              no_argument, NULL, 0 },
     { "rc-grain",             no_argument, NULL, 0 },
     { "no-rc-grain",          no_argument, NULL, 0 },
     { "ipratio",        required_argument, NULL, 0 },
@@ -312,8 +311,7 @@ static const struct option long_options[] =
     { "dynamic-refine",       no_argument, NULL, 0 },
     { "no-dynamic-refine",    no_argument, NULL, 0 },
     { "strict-cbr",           no_argument, NULL, 0 },
-    { "temporal-layers",      no_argument, NULL, 0 },
-    { "no-temporal-layers",   no_argument, NULL, 0 },
+    { "temporal-layers",      required_argument, NULL, 0 },
     { "qg-size",        required_argument, NULL, 0 },
     { "recon-y4m-exec", required_argument, NULL, 0 },
     { "analyze-src-pics", no_argument, NULL, 0 },
@@ -363,6 +361,8 @@ static const struct option long_options[] =
     { "frame-dup",            no_argument, NULL, 0 },
     { "no-frame-dup", no_argument, NULL, 0 },
     { "dup-threshold", required_argument, NULL, 0 },
+    { "mcstf",                 no_argument, NULL, 0 },
+    { "no-mcstf",              no_argument, NULL, 0 },
 #ifdef SVT_HEVC
     { "svt",     no_argument, NULL, 0 },
     { "no-svt",  no_argument, NULL, 0 },
@@ -387,6 +387,7 @@ static const struct option long_options[] =
     { "abr-ladder", required_argument, NULL, 0 },
     { "min-vbv-fullness", required_argument, NULL, 0 },
     { "max-vbv-fullness", required_argument, NULL, 0 },
+    { "scenecut-qp-config", required_argument, NULL, 0 },
     { "film-grain", required_argument, NULL, 0 },
     { 0, 0, 0, 0 },
     { 0, 0, 0, 0 },
@@ -403,6 +404,7 @@ static const struct option long_options[] =
         FILE*       qpfile;
         FILE*       zoneFile;
         FILE*    dolbyVisionRpu;    /* File containing Dolby Vision BL RPU metadata */
+        FILE*    scenecutAwareQpConfig; /* File containing scenecut aware frame quantization related CLI options */
         const char* reconPlayCmd;
         const x265_api* api;
         x265_param* param;
@@ -444,6 +446,7 @@ static const struct option long_options[] =
             qpfile = NULL;
             zoneFile = NULL;
             dolbyVisionRpu = NULL;
+            scenecutAwareQpConfig = NULL;
             reconPlayCmd = NULL;
             api = NULL;
             param = NULL;
@@ -476,6 +479,8 @@ static const struct option long_options[] =
         bool parseQPFile(x265_picture &pic_org);
         bool parseZoneFile();
         int rpuParser(x265_picture * pic);
+        bool parseScenecutAwareQpConfig();
+        bool parseScenecutAwareQpParam(int argc, char **argv, x265_param* globalParam);
     };
 #ifdef __cplusplus
 }

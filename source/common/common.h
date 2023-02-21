@@ -130,7 +130,6 @@ typedef uint64_t sum2_t;
 typedef uint64_t pixel4;
 typedef int64_t  ssum2_t;
 #define SHIFT_TO_BITPLANE 9
-#define HISTOGRAM_BINS 1024
 #else
 typedef uint8_t  pixel;
 typedef uint16_t sum_t;
@@ -138,7 +137,6 @@ typedef uint32_t sum2_t;
 typedef uint32_t pixel4;
 typedef int32_t  ssum2_t; // Signed sum
 #define SHIFT_TO_BITPLANE 7
-#define HISTOGRAM_BINS 256
 #endif // if HIGH_BIT_DEPTH
 
 #if X265_DEPTH < 10
@@ -162,6 +160,8 @@ typedef uint64_t sse_t;
 
 #define MIN_QPSCALE     0.21249999999999999
 #define MAX_MAX_QPSCALE 615.46574234477100
+#define FRAME_BRIGHTNESS_THRESHOLD  50.0 // Min % of pixels in a frame, that are above BRIGHTNESS_THRESHOLD for it to be considered a bright frame
+#define FRAME_EDGE_THRESHOLD  10.0 // Min % of edge pixels in a frame, for it to be considered to have high edge density
 
 
 template<typename T>
@@ -341,6 +341,8 @@ typedef int16_t  coeff_t;      // transform coefficient
 
 #define MAX_NUM_DYN_REFINE          (NUM_CU_DEPTH * X265_REFINE_INTER_LEVELS)
 #define X265_BYTE 8
+
+#define MAX_MCSTF_TEMPORAL_WINDOW_LENGTH 8
 
 namespace X265_NS {
 

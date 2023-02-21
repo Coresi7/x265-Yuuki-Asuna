@@ -37,15 +37,13 @@
 
 // uint64_t pixel_var(const pixel* pix, intptr_t i_stride)
 function PFX(pixel_var_8x8_neon)
-    ldr             d4, [x0]                 // pix[x]
-    add             x0, x0, x1
+    ld1             {v4.8b}, [x0], x1        // pix[x]
     uxtl            v0.8h, v4.8b             // sum = pix[x]
     umull           v1.8h, v4.8b, v4.8b
     uaddlp          v1.4s, v1.8h             // sqr = pix[x] * pix[x]
 
 .rept 7
-    ldr             d4, [x0]                 // pix[x]
-    add             x0, x0, x1
+    ld1             {v4.8b}, [x0], x1        // pix[x]
     umull           v31.8h, v4.8b, v4.8b
     uaddw           v0.8h, v0.8h, v4.8b      // sum += pix[x]
     uadalp          v1.4s, v31.8h            // sqr += pix[x] * pix[x]
@@ -90,8 +88,7 @@ function PFX(pixel_var_16x16_neon)
     mov             w12, #16
 .loop_var_16:
     sub             w12, w12, #1
-    ldr             q4, [x0]
-    add             x0, x0, x1
+    ld1             {v4.16b}, [x0], x1
     pixel_var_1 v4
     cbnz            w12, .loop_var_16
     pixel_var_end
@@ -130,20 +127,14 @@ endfunc
 function PFX(getResidual4_neon)
     lsl             x4, x3, #1
 .rept 2
-    ldr             d0, [x0]
-    ldr             d1, [x1]
-    add             x0, x0, x3
-    add             x1, x1, x3
-    ldr             d2, [x0]
-    ldr             d3, [x1]
-    add             x0, x0, x3
-    add             x1, x1, x3
+    ld1             {v0.8b}, [x0], x3
+    ld1             {v1.8b}, [x1], x3
+    ld1             {v2.8b}, [x0], x3
+    ld1             {v3.8b}, [x1], x3
     usubl           v4.8h, v0.8b, v1.8b
     usubl           v5.8h, v2.8b, v3.8b
-    str             d4, [x2]
-    add             x2, x2, x4
-    str             d5, [x2]
-    add             x2, x2, x4
+    st1             {v4.8b}, [x2], x4
+    st1             {v5.8b}, [x2], x4
 .endr
     ret
 endfunc
@@ -151,20 +142,14 @@ endfunc
 function PFX(getResidual8_neon)
     lsl             x4, x3, #1
 .rept 4
-    ldr             d0, [x0]
-    ldr             d1, [x1]
-    add             x0, x0, x3
-    add             x1, x1, x3
-    ldr             d2, [x0]
-    ldr             d3, [x1]
-    add             x0, x0, x3
-    add             x1, x1, x3
+    ld1             {v0.8b}, [x0], x3
+    ld1             {v1.8b}, [x1], x3
+    ld1             {v2.8b}, [x0], x3
+    ld1             {v3.8b}, [x1], x3
     usubl           v4.8h, v0.8b, v1.8b
     usubl           v5.8h, v2.8b, v3.8b
-    str             q4, [x2]
-    add             x2, x2, x4
-    str             q5, [x2]
-    add             x2, x2, x4
+    st1             {v4.16b}, [x2], x4
+    st1             {v5.16b}, [x2], x4
 .endr
     ret
 endfunc
@@ -650,19 +635,14 @@ endfunc
 
 //******* satd *******
 .macro satd_4x4_neon
-    ldr             s1, [x2]
-    ldr             s0, [x0]
-    add             x2, x2, x3
-    add             x0, x0, x1
-    ldr             s3, [x2]
-    ldr             s2, [x0]
-    add             x2, x2, x3
-    add             x0, x0, x1
-
-    ld1             {v1.s}[1], [x2], x3
+    ld1             {v0.s}[0], [x0], x1
     ld1             {v0.s}[1], [x0], x1
-    ld1             {v3.s}[1], [x2], x3
+    ld1             {v1.s}[0], [x2], x3
+    ld1             {v1.s}[1], [x2], x3
+    ld1             {v2.s}[0], [x0], x1
     ld1             {v2.s}[1], [x0], x1
+    ld1             {v3.s}[0], [x2], x3
+    ld1             {v3.s}[1], [x2], x3
 
     usubl           v4.8h, v0.8b, v1.8b
     usubl           v5.8h, v2.8b, v3.8b
@@ -1965,10 +1945,8 @@ endfunc
 function PFX(ssimDist4_neon)
     ssimDist_start
 .rept 4
-    ldr             s4, [x0]
-    ldr             s5, [x2]
-    add             x0, x0, x1
-    add             x2, x2, x3
+    ld1             {v4.s}[0], [x0], x1
+    ld1             {v5.s}[0], [x2], x3
     uxtl            v4.8h, v4.8b
     uxtl            v5.8h, v5.8b
     sub             v2.4h, v4.4h, v5.4h
@@ -1984,10 +1962,8 @@ endfunc
 function PFX(ssimDist8_neon)
     ssimDist_start
 .rept 8
-    ldr             d4, [x0]
-    ldr             d5, [x2]
-    add             x0, x0, x1
-    add             x2, x2, x3
+    ld1             {v4.8b}, [x0], x1
+    ld1             {v5.8b}, [x2], x3
     uxtl            v4.8h, v4.8b
     uxtl            v5.8h, v5.8b
     ssimDist_1      v4, v5
@@ -2001,10 +1977,8 @@ function PFX(ssimDist16_neon)
     ssimDist_start
 .loop_ssimDist16:
     sub             w12, w12, #1
-    ldr             q4, [x0]
-    ldr             q5, [x2]
-    add             x0, x0, x1
-    add             x2, x2, x3
+    ld1             {v4.16b}, [x0], x1
+    ld1             {v5.16b}, [x2], x3
     uxtl            v6.8h, v4.8b
     uxtl            v7.8h, v5.8b
     uxtl2           v4.8h, v4.16b
@@ -2021,10 +1995,8 @@ function PFX(ssimDist32_neon)
     ssimDist_start
 .loop_ssimDist32:
     sub             w12, w12, #1
-    ldp             q4, q5, [x0]
-    ldp             q6, q7, [x2]
-    add             x0, x0, x1
-    add             x2, x2, x3
+    ld1             {v4.16b-v5.16b}, [x0], x1
+    ld1             {v6.16b-v7.16b}, [x2], x3
     uxtl            v21.8h, v4.8b
     uxtl            v22.8h, v6.8b
     uxtl            v23.8h, v5.8b
@@ -2047,32 +2019,28 @@ function PFX(ssimDist64_neon)
     ssimDist_start
 .loop_ssimDist64:
     sub             w12, w12, #1
-    ldp             q4, q5, [x0]
-    ldp             q6, q7, [x2]
+    ld1             {v4.16b-v7.16b}, [x0], x1
+    ld1             {v16.16b-v19.16b}, [x2], x3
     uxtl            v21.8h, v4.8b
-    uxtl            v22.8h, v6.8b
+    uxtl            v22.8h, v16.8b
     uxtl            v23.8h, v5.8b
-    uxtl            v24.8h, v7.8b
+    uxtl            v24.8h, v17.8b
     uxtl2           v25.8h, v4.16b
-    uxtl2           v26.8h, v6.16b
+    uxtl2           v26.8h, v16.16b
     uxtl2           v27.8h, v5.16b
-    uxtl2           v28.8h, v7.16b
+    uxtl2           v28.8h, v17.16b
     ssimDist_1      v21, v22
     ssimDist_1      v23, v24
     ssimDist_1      v25, v26
     ssimDist_1      v27, v28
-    ldp             q4, q5, [x0, #32]
-    ldp             q6, q7, [x2, #32]
-    add             x0, x0, x1
-    add             x2, x2, x3
-    uxtl            v21.8h, v4.8b
-    uxtl            v22.8h, v6.8b
-    uxtl            v23.8h, v5.8b
-    uxtl            v24.8h, v7.8b
-    uxtl2           v25.8h, v4.16b
-    uxtl2           v26.8h, v6.16b
-    uxtl2           v27.8h, v5.16b
-    uxtl2           v28.8h, v7.16b
+    uxtl            v21.8h, v6.8b
+    uxtl            v22.8h, v18.8b
+    uxtl            v23.8h, v7.8b
+    uxtl            v24.8h, v19.8b
+    uxtl2           v25.8h, v6.16b
+    uxtl2           v26.8h, v18.16b
+    uxtl2           v27.8h, v7.16b
+    uxtl2           v28.8h, v19.16b
     ssimDist_1      v21, v22
     ssimDist_1      v23, v24
     ssimDist_1      v25, v26
@@ -2104,8 +2072,7 @@ endfunc
 function PFX(normFact8_neon)
     normFact_start
 .rept 8
-    ldr             d4, [x0]
-    add             x0, x0, x1
+    ld1             {v4.8b}, [x0], x1
     uxtl            v4.8h, v4.8b
     normFact_1      v4
 .endr
@@ -2118,8 +2085,7 @@ function PFX(normFact16_neon)
     normFact_start
 .loop_normFact16:
     sub             w12, w12, #1
-    ldr             q4, [x0]
-    add             x0, x0, x1
+    ld1             {v4.16b}, [x0], x1
     uxtl            v5.8h, v4.8b
     uxtl2           v4.8h, v4.16b
     normFact_1      v5
@@ -2134,8 +2100,7 @@ function PFX(normFact32_neon)
     normFact_start
 .loop_normFact32:
     sub             w12, w12, #1
-    ldp             q4, q5, [x0]
-    add             x0, x0, x1
+    ld1             {v4.16b-v5.16b}, [x0], x1
     uxtl            v6.8h, v4.8b
     uxtl2           v4.8h, v4.16b
     uxtl            v7.8h, v5.8b
@@ -2154,25 +2119,23 @@ function PFX(normFact64_neon)
     normFact_start
 .loop_normFact64:
     sub             w12, w12, #1
-    ldp             q4, q5, [x0]
-    uxtl            v6.8h, v4.8b
-    uxtl2           v4.8h, v4.16b
-    uxtl            v7.8h, v5.8b
-    uxtl2           v5.8h, v5.16b
-    normFact_1      v4
-    normFact_1      v5
-    normFact_1      v6
-    normFact_1      v7
-    ldp             q4, q5, [x0, #32]
-    add             x0, x0, x1
-    uxtl            v6.8h, v4.8b
-    uxtl2           v4.8h, v4.16b
-    uxtl            v7.8h, v5.8b
-    uxtl2           v5.8h, v5.16b
-    normFact_1      v4
-    normFact_1      v5
-    normFact_1      v6
-    normFact_1      v7
+    ld1             {v4.16b-v7.16b}, [x0], x1
+    uxtl            v26.8h, v4.8b
+    uxtl2           v24.8h, v4.16b
+    uxtl            v27.8h, v5.8b
+    uxtl2           v25.8h, v5.16b
+    normFact_1      v24
+    normFact_1      v25
+    normFact_1      v26
+    normFact_1      v27
+    uxtl            v26.8h, v6.8b
+    uxtl2           v24.8h, v6.16b
+    uxtl            v27.8h, v7.8b
+    uxtl2           v25.8h, v7.16b
+    normFact_1      v24
+    normFact_1      v25
+    normFact_1      v26
+    normFact_1      v27
     cbnz            w12, .loop_normFact64
     normFact_end
     ret
@@ -2330,20 +2293,18 @@ function PFX(scanPosLast_neon)
     // val - w13 = pmovmskb(v3)
     and             v3.16b, v3.16b, v28.16b
     mov             d4, v3.d[1]
-    addv            b13, v3.8b
-    addv            b14, v4.8b
-    fmov            w13, s13
-    fmov            w14, s14
-    orr             w13, w13, w14, lsl #8
+    addv            b23, v3.8b
+    addv            b24, v4.8b
+    mov             v23.b[1], v24.b[0]
+    fmov            w13, s23
 
     // mask - w15 = pmovmskb(v5)
     and             v5.16b, v5.16b, v28.16b
     mov             d6, v5.d[1]
-    addv            b15, v5.8b
-    addv            b16, v6.8b
-    fmov            w15, s15
-    fmov            w14, s16
-    orr             w15, w15, w14, lsl #8
+    addv            b25, v5.8b
+    addv            b26, v6.8b
+    mov             v25.b[1], v26.b[0]
+    fmov            w15, s25
 
     // coeffFlag = reverse_bit(w15) in 16-bit
     rbit            w12, w15
@@ -2388,6 +2349,142 @@ function PFX(scanPosLast_neon)
     ret
 endfunc
 
+// uint32_t costCoeffNxN(
+//    uint16_t *scan,        // x0
+//    coeff_t *coeff,        // x1
+//    intptr_t trSize,       // x2
+//    uint16_t *absCoeff,    // x3
+//    uint8_t *tabSigCtx,    // x4
+//    uint16_t scanFlagMask, // x5
+//    uint8_t *baseCtx,      // x6
+//    int offset,            // x7
+//    int scanPosSigOff,     // sp
+//    int subPosBase)        // sp + 8
+function PFX(costCoeffNxN_neon)
+    // abs(coeff)
+    add             x2, x2, x2
+    ld1             {v1.d}[0], [x1], x2
+    ld1             {v1.d}[1], [x1], x2
+    ld1             {v2.d}[0], [x1], x2
+    ld1             {v2.d}[1], [x1], x2
+    abs             v1.8h, v1.8h
+    abs             v2.8h, v2.8h
+
+    // WARNING: beyond-bound read here!
+    // loading scan table
+    ldr             w2, [sp]
+    eor             w15, w2, #15
+    add             x1, x0, x15, lsl #1
+    ldp             q20, q21, [x1]
+    uzp1            v20.16b, v20.16b, v21.16b
+    movi            v21.16b, #15
+    eor             v0.16b, v20.16b, v21.16b
+
+    // reorder coeff
+    uzp1           v22.16b, v1.16b, v2.16b
+    uzp2           v23.16b, v1.16b, v2.16b
+    tbl            v24.16b, {v22.16b}, v0.16b
+    tbl            v25.16b, {v23.16b}, v0.16b
+    zip1           v2.16b, v24.16b, v25.16b
+    zip2           v3.16b, v24.16b, v25.16b
+
+    // loading tabSigCtx (+offset)
+    ldr             q1, [x4]
+    tbl             v1.16b, {v1.16b}, v0.16b
+    dup             v4.16b, w7
+    movi            v5.16b, #0
+    tbl             v4.16b, {v4.16b}, v5.16b
+    add             v1.16b, v1.16b, v4.16b
+
+    // register mapping
+    // x0 - sum
+    // x1 - entropyStateBits
+    // v1 - sigCtx
+    // {v3,v2} - abs(coeff)
+    // x2 - scanPosSigOff
+    // x3 - absCoeff
+    // x4 - numNonZero
+    // x5 - scanFlagMask
+    // x6 - baseCtx
+    mov             x0, #0
+    movrel          x1, x265_entropyStateBits
+    mov             x4, #0
+    mov             x11, #0
+    movi            v31.16b, #0
+    cbz             x2, .idx_zero
+.loop_ccnn:
+//   {
+//        const uint32_t cnt = tabSigCtx[blkPos] + offset + posOffset;
+//        ctxSig = cnt & posZeroMask;
+//        const uint32_t mstate = baseCtx[ctxSig];
+//        const uint32_t mps = mstate & 1;
+//        const uint32_t stateBits = x265_entropyStateBits[mstate ^ sig];
+//        uint32_t nextState = (stateBits >> 24) + mps;
+//        if ((mstate ^ sig) == 1)
+//            nextState = sig;
+//        baseCtx[ctxSig] = (uint8_t)nextState;
+//        sum += stateBits;
+//    }
+//    absCoeff[numNonZero] = tmpCoeff[blkPos];
+//    numNonZero += sig;
+//    scanPosSigOff--;
+
+    add             x13, x3, x4, lsl #1
+    sub             x2, x2, #1
+    str             h2, [x13]             // absCoeff[numNonZero] = tmpCoeff[blkPos]
+    fmov            w14, s1               // x14 = ctxSig
+    uxtb            w14, w14
+    ubfx            w11, w5, #0, #1       // x11 = sig
+    lsr             x5, x5, #1
+    add             x4, x4, x11           // numNonZero += sig
+    ext             v1.16b, v1.16b, v31.16b, #1
+    ext             v2.16b, v2.16b, v3.16b, #2
+    ext             v3.16b, v3.16b, v31.16b, #2
+    ldrb            w9, [x6, x14]         // mstate = baseCtx[ctxSig]
+    and             w10, w9, #1           // mps = mstate & 1
+    eor             w9, w9, w11           // x9 = mstate ^ sig
+    add             x12, x1, x9, lsl #2
+    ldr             w13, [x12]
+    add             w0, w0, w13           // sum += x265_entropyStateBits[mstate ^ sig]
+    ldrb            w13, [x12, #3]
+    add             w10, w10, w13         // nextState = (stateBits >> 24) + mps
+    cmp             w9, #1
+    csel            w10, w11, w10, eq
+    strb            w10, [x6, x14]
+    cbnz            x2, .loop_ccnn
+.idx_zero:
+
+    add             x13, x3, x4, lsl #1
+    add             x4, x4, x15
+    str             h2, [x13]              // absCoeff[numNonZero] = tmpCoeff[blkPos]
+
+    ldr             x9, [sp, #8]           // subPosBase
+    uxth            w9, w9
+    cmp             w9, #0
+    cset            x2, eq
+    add             x4, x4, x2
+    cbz             x4, .exit_ccnn
+
+    sub             w2, w2, #1
+    uxtb            w2, w2
+    fmov            w3, s1
+    and             w2, w2, w3
+
+    ldrb            w3, [x6, x2]         // mstate = baseCtx[ctxSig]
+    eor             w4, w5, w3            // x5 = mstate ^ sig
+    and             w3, w3, #1            // mps = mstate & 1
+    add             x1, x1, x4, lsl #2
+    ldr             w11, [x1]
+    ldrb            w12, [x1, #3]
+    add             w0, w0, w11           // sum += x265_entropyStateBits[mstate ^ sig]
+    add             w3, w3, w12           // nextState = (stateBits >> 24) + mps
+    cmp             w4, #1
+    csel            w3, w5, w3, eq
+    strb            w3, [x6, x2]
+.exit_ccnn:
+    ubfx            w0, w0, #0, #24
+    ret
+endfunc
 
 const g_SPL_and_mask, align=8
 .byte 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80
