@@ -538,6 +538,8 @@ typedef enum
 /* ARM */
 #define X265_CPU_ARMV6           0x0000001
 #define X265_CPU_NEON            0x0000002  /* ARM NEON */
+#define X265_CPU_SVE2            0x0000008  /* ARM SVE2 */
+#define X265_CPU_SVE             0x0000010  /* ARM SVE2 */
 #define X265_CPU_FAST_NEON_MRC   0x0000004  /* Transfer from NEON to ARM register is fast (Cortex-A9) */
 
 /* IBM Power8 */
@@ -703,6 +705,7 @@ struct x265_param;
 typedef struct x265_zone
 {
     int   startFrame, endFrame; /* range of frame numbers */
+    int   keyframeMax;          /* it store the default/user defined keyframeMax value*/
     int   bForceQp;             /* whether to use qp vs bitrate factor */
     int   qp;
     float bitrateFactor;
@@ -2149,6 +2152,10 @@ typedef struct x265_param
     /*Flag to indicate if rate-control history has to be reset during zone reconfiguration.
       Default 1 (Enabled). API only. */
     int       bResetZoneConfig;
+
+    /*Flag to indicate rate-control history has not to be reset during zone reconfiguration.
+      Default 0 (Disabled) */
+    int       bNoResetZoneConfig;
 
     /* It reduces the bits spent on the inter-frames within the scenecutWindow before and / or after a scenecut
      * by increasing their QP in ratecontrol pass2 algorithm without any deterioration in visual quality.

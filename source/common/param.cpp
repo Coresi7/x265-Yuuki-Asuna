@@ -2907,6 +2907,7 @@ bool parseMaskingStrength(x265_param* p, const char* value)
         dst->rc.zonefileCount = src->rc.zonefileCount;
         dst->reconfigWindowSize = src->reconfigWindowSize;
         dst->bResetZoneConfig = src->bResetZoneConfig;
+    dst->bNoResetZoneConfig = src->bNoResetZoneConfig;
         dst->decoderVbvMaxRate = src->decoderVbvMaxRate;
 
         if (src->rc.zonefileCount && src->rc.zones && src->bResetZoneConfig)
@@ -2914,6 +2915,7 @@ bool parseMaskingStrength(x265_param* p, const char* value)
             for (int i = 0; i < src->rc.zonefileCount; i++)
             {
                 dst->rc.zones[i].startFrame = src->rc.zones[i].startFrame;
+            dst->rc.zones[0].keyframeMax = src->rc.zones[0].keyframeMax;
                 memcpy(dst->rc.zones[i].zoneParam, src->rc.zones[i].zoneParam, sizeof(x265_param));
             }
         }

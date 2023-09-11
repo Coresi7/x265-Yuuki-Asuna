@@ -2396,7 +2396,7 @@ int Encoder::encode(const x265_picture* pic_in, x265_picture* pic_out)
                     if (!*ref->isSubsampled)
                     {
                         primitives.frameSubSampleLuma((const pixel *)ref->picBuffer->m_picOrg[0], ref->picBufferSubSampled2->m_picOrg[0], ref->picBuffer->m_stride, ref->picBufferSubSampled2->m_stride, ref->picBufferSubSampled2->m_picWidth, ref->picBufferSubSampled2->m_picHeight);
-                        extendPicBorder(frameEnc->m_fencPicSubsampled2->m_picOrg[0], ref->picBufferSubSampled2->m_stride, ref->picBufferSubSampled2->m_picWidth, ref->picBufferSubSampled2->m_picHeight, ref->picBufferSubSampled2->m_lumaMarginX, ref->picBufferSubSampled2->m_lumaMarginY);
+                        extendPicBorder(ref->picBufferSubSampled2->m_picOrg[0], ref->picBufferSubSampled2->m_stride, ref->picBufferSubSampled2->m_picWidth, ref->picBufferSubSampled2->m_picHeight, ref->picBufferSubSampled2->m_lumaMarginX, ref->picBufferSubSampled2->m_lumaMarginY);
                         primitives.frameSubSampleLuma((const pixel *)ref->picBufferSubSampled2->m_picOrg[0],ref->picBufferSubSampled4->m_picOrg[0], ref->picBufferSubSampled2->m_stride, ref->picBufferSubSampled4->m_stride, ref->picBufferSubSampled4->m_picWidth, ref->picBufferSubSampled4->m_picHeight);
                         extendPicBorder(ref->picBufferSubSampled4->m_picOrg[0], ref->picBufferSubSampled4->m_stride, ref->picBufferSubSampled4->m_picWidth, ref->picBufferSubSampled4->m_picHeight, ref->picBufferSubSampled4->m_lumaMarginX, ref->picBufferSubSampled4->m_lumaMarginY);
                         *ref->isSubsampled = true;
@@ -3512,6 +3512,11 @@ void Encoder::configureZone(x265_param *p, x265_param *zone)
             p->rc.qp = zone->rc.qp;
             p->rc.aqMode = X265_AQ_NONE;
             p->rc.hevcAq = 0;
+        }
+        if (p->rc.aqMode == 0 && p->rc.cuTree)
+        {
+            p->rc.aqMode = X265_AQ_VARIANCE;
+            p->rc.aqStrength = 0;
         }
         p->radl = zone->radl;
     }

@@ -313,6 +313,7 @@ namespace X265_NS {
         H1("                                       q=<integer> (force QP)\n");
         H1("                                   or  b=<float> (bitrate multiplier)\n");
         H0("   --zonefile <filename>         Zone file containing the zone boundaries and the parameters to be reconfigured.\n");
+        H0("   --no-zonefile-rc-init         This allow to use rate-control history across zones in zonefile.\n");
         H1("   --lambda-file <string>        Specify a file containing replacement values for the lambda tables\n");
         H1("                                 MAX_MAX_QP+1 floats for lambda table, then again for lambda2 table\n");
         H1("                                 Blank lines and lines starting with hash(#) are ignored\n");
@@ -617,6 +618,9 @@ namespace X265_NS {
 
         memcpy(globalParam->rc.zones[zonefileCount].zoneParam, globalParam, sizeof(x265_param));
 
+        if (zonefileCount == 0)
+            globalParam->rc.zones[zonefileCount].keyframeMax = globalParam->keyframeMax;
+
         for (optind = 0;;)
         {
             int long_options_index = -1;
@@ -853,7 +857,7 @@ namespace X265_NS {
                     if (!this->zoneFile)
                         x265_log_file(param, X265_LOG_ERROR, "%s zone file not found or error in opening zone file\n", optarg);
                 }
-                OPT("vf") this->vf = optarg;
+                OPT("no-zonefile-rc-init") this->param->bNoResetZoneConfig = true;
                 OPT("fullhelp")
                 {
                     param->logLevel = X265_LOG_FULL;
