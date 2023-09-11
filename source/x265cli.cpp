@@ -858,6 +858,7 @@ namespace X265_NS {
                         x265_log_file(param, X265_LOG_ERROR, "%s zone file not found or error in opening zone file\n", optarg);
                 }
                 OPT("no-zonefile-rc-init") this->param->bNoResetZoneConfig = true;
+                OPT("vf") this->vf = optarg;
                 OPT("fullhelp")
                 {
                     param->logLevel = X265_LOG_FULL;
