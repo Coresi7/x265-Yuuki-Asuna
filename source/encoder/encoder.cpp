@@ -1710,7 +1710,8 @@ int Encoder::encode(const x265_picture* pic_in, x265_picture* pic_out)
         }
 
         /* Use the frame types from the first pass, if available */
-        int sliceType = (m_param->rc.bStatRead) ? m_rateControl->rateControlSliceType(inFrame->m_poc) : inputPic->sliceType;
+        int sliceType = (m_param->rc.bStatRead) ? m_rateControl->rateControlSliceType(inFrame->m_poc) : X265_TYPE_AUTO;
+        inFrame->m_lowres.sliceTypeReq = inputPic->sliceType;
 
         /* In analysisSave mode, x265_analysis_data is allocated in inputPic and inFrame points to this */
         /* Load analysis data before lookahead->addPicture, since sliceType has been decided */
@@ -3669,6 +3670,12 @@ void Encoder::configure(x265_param *p)
     if (!p->rdoqLevel)
         p->psyRdoq = 0;
 
+    if (p->craNal && p->keyframeMax > 1)
+    {
+        x265_log_file(NULL, X265_LOG_ERROR, " --cra-nal works only with keyint 1, but given keyint = %s\n", p->keyframeMax);
+        m_aborted = true;
+    }
+
     /* Disable features which are not supported by the current RD level */
     if (p->rdLevel < 3)
     {
@@ -3931,10 +3938,11 @@ void Encoder::configure(x265_param *p)
 
     if (p->bEnableTemporalSubLayers > 2)
     {
-        if (!p->bFrameAdaptive)
+        if (p->bFrameAdaptive)
+        {
             x265_log(p, X265_LOG_WARNING, "Disabling adaptive B-frame placement to support temporal sub-layers\n");
-
-        p->bFrameAdaptive = 0;
+            p->bFrameAdaptive = 0;
+        }
     }
 
     m_bframeDelay = p->bframes ? (p->bBPyramid ? 2 : 1) : 0;
@@ -4409,16 +4417,25 @@ void Encoder::configure(x265_param *p)
             m_param->searchRange = m_param->hmeRange[2];
     }
 
-    if (p->bEnableSBRC && p->bOpenGOP)
+    if (p->bEnableSBRC && (p->rc.rateControlMode != X265_RC_CRF || (p->rc.vbvBufferSize == 0 || p->rc.vbvMaxBitrate == 0)))
     {
-        x265_log(p, X265_LOG_WARNING, "Segment based RateControl requires closed gop structure. Enabling closed GOP.\n");
-        p->bOpenGOP = 0;
+        x265_log(p, X265_LOG_WARNING, "SBRC can be enabled only with CRF+VBV mode. Disabling SBRC\n");
+        p->bEnableSBRC = 0;
     }
 
-    if (p->bEnableSBRC && (p->keyframeMax != p->keyframeMin))
+    if (p->bEnableSBRC)
     {
-        x265_log(p, X265_LOG_WARNING, "Segment based RateControl requires fixed gop length. Force set min-keyint equal to keyint.\n");
-        p->keyframeMin = p->keyframeMax;
+        p->rc.ipFactor = p->rc.ipFactor * X265_IPRATIO_STRENGTH;
+        if (p->bOpenGOP)
+        {
+            x265_log(p, X265_LOG_WARNING, "Segment based RateControl requires closed gop structure. Enabling closed GOP.\n");
+            p->bOpenGOP = 0;
+        }
+        if (p->keyframeMax != p->keyframeMin)
+        {
+            x265_log(p, X265_LOG_WARNING, "Segment based RateControl requires fixed gop length. Force set min-keyint equal to keyint.\n");
+            p->keyframeMin = p->keyframeMax;
+        }
     }
 }
 

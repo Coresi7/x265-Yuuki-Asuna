@@ -623,6 +623,8 @@ typedef enum
 #define X265_MAX_GOP_LENGTH 16
 #define MAX_T_LAYERS 7
 
+#define X265_IPRATIO_STRENGTH   1.43
+
 typedef struct x265_cli_csp
 {
     int planes;
@@ -1266,6 +1268,9 @@ typedef struct x265_param
      * generally has better compression efficiency and negligible encoder
      * performance impact, but the use case may preclude it.  Default true */
     int       bOpenGOP;
+
+	/*Force nal type to CRA to all frames expect first frame. Default disabled*/
+	int       craNal;
 
     /* Scene cuts closer together than this are coded as I, not IDR. */
     int       keyframeMin;

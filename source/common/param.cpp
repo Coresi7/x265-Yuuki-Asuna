@@ -164,26 +164,27 @@ namespace X265_NS {
         param->tuQTMaxIntraDepth = 1;
         param->maxTUSize = 32;
 
-        /* Coding Structure */
-        param->keyframeMin = 0;
-        param->keyframeMax = 250;
-        param->gopLookahead = 0;
-        param->bOpenGOP = 1;
-        param->bframes = 4;
-        param->lookaheadDepth = 20;
-        param->bFrameAdaptive = X265_B_ADAPT_TRELLIS;
-        param->bBPyramid = 1;
-        param->scenecutThreshold = 40; /* Magic number pulled in from x264 */
-        param->bHistBasedSceneCut = 0;
-        param->lookaheadSlices = 8;
-        param->lookaheadThreads = 0;
-        param->scenecutBias = 5.0;
-        param->radl = 0;
-        param->chunkStart = 0;
-        param->chunkEnd = 0;
-        param->bEnableHRDConcatFlag = 0;
-        param->bEnableFades = 0;
-        param->bEnableSceneCutAwareQp = 0;
+    /* Coding Structure */
+    param->keyframeMin = 0;
+    param->keyframeMax = 250;
+    param->gopLookahead = 0;
+    param->bOpenGOP = 1;
+	param->craNal = 0;
+    param->bframes = 4;
+    param->lookaheadDepth = 20;
+    param->bFrameAdaptive = X265_B_ADAPT_TRELLIS;
+    param->bBPyramid = 1;
+    param->scenecutThreshold = 40; /* Magic number pulled in from x264 */
+    param->bHistBasedSceneCut = 0;
+    param->lookaheadSlices = 8;
+    param->lookaheadThreads = 0;
+    param->scenecutBias = 5.0;
+    param->radl = 0;
+    param->chunkStart = 0;
+    param->chunkEnd = 0;
+    param->bEnableHRDConcatFlag = 0;
+    param->bEnableFades = 0;
+    param->bEnableSceneCutAwareQp = 0;
     param->fwdMaxScenecutWindow = 1200;
     param->bwdMaxScenecutWindow = 600;
     for (int i = 0; i < 6; i++)
@@ -1359,7 +1360,104 @@ int x265_scenecut_aware_qp_param_parse(x265_param* p, const char* name, const ch
             p->vui.bEnableVideoSignalTypePresentFlag = 1;
             p->vui.videoFormat = parseName(value, x265_video_format_names, bError);
         }
-        OPT("range")
+        else if (!strcmp(value, "unknown"))
+            p->vui.bEnableOverscanInfoPresentFlag = 0;
+        else
+            bError = true;
+    }
+    OPT("videoformat")
+    {
+        p->vui.bEnableVideoSignalTypePresentFlag = 1;
+        p->vui.videoFormat = parseName(value, x265_video_format_names, bError);
+    }
+    OPT("range")
+    {
+        p->vui.bEnableVideoSignalTypePresentFlag = 1;
+        p->vui.bEnableVideoFullRangeFlag = parseName(value, x265_fullrange_names, bError);
+    }
+    OPT("colorprim")
+    {
+        p->vui.bEnableVideoSignalTypePresentFlag = 1;
+        p->vui.bEnableColorDescriptionPresentFlag = 1;
+        p->vui.colorPrimaries = parseName(value, x265_colorprim_names, bError);
+    }
+    OPT("transfer")
+    {
+        p->vui.bEnableVideoSignalTypePresentFlag = 1;
+        p->vui.bEnableColorDescriptionPresentFlag = 1;
+        p->vui.transferCharacteristics = parseName(value, x265_transfer_names, bError);
+    }
+    OPT("colormatrix")
+    {
+        p->vui.bEnableVideoSignalTypePresentFlag = 1;
+        p->vui.bEnableColorDescriptionPresentFlag = 1;
+        p->vui.matrixCoeffs = parseName(value, x265_colmatrix_names, bError);
+    }
+    OPT("chromaloc")
+    {
+        p->vui.bEnableChromaLocInfoPresentFlag = 1;
+        p->vui.chromaSampleLocTypeTopField = atoi(value);
+        p->vui.chromaSampleLocTypeBottomField = p->vui.chromaSampleLocTypeTopField;
+    }
+    OPT2("display-window", "crop-rect")
+    {
+        p->vui.bEnableDefaultDisplayWindowFlag = 1;
+        bError |= sscanf(value, "%d,%d,%d,%d",
+                         &p->vui.defDispWinLeftOffset,
+                         &p->vui.defDispWinTopOffset,
+                         &p->vui.defDispWinRightOffset,
+                         &p->vui.defDispWinBottomOffset) != 4;
+    }
+    OPT("nr-intra") p->noiseReductionIntra = atoi(value);
+    OPT("nr-inter") p->noiseReductionInter = atoi(value);
+    OPT("pass")
+    {
+        int pass = x265_clip3(0, 3, atoi(value));
+        p->rc.bStatWrite = pass & 1;
+        p->rc.bStatRead = pass & 2;
+        p->rc.dataShareMode = X265_SHARE_MODE_FILE;
+    }
+    OPT("stats") p->rc.statFileName = strdup(value);
+    OPT("scaling-list") p->scalingLists = strdup(value);
+    OPT2("pools", "numa-pools") p->numaPools = strdup(value);
+    OPT("lambda-file") p->rc.lambdaFileName = strdup(value);
+    OPT("analysis-reuse-file") p->analysisReuseFileName = strdup(value);
+    OPT("qg-size") p->rc.qgSize = atoi(value);
+    OPT("master-display") p->masteringDisplayColorVolume = strdup(value);
+    OPT("max-cll") bError |= sscanf(value, "%hu,%hu", &p->maxCLL, &p->maxFALL) != 2;
+    OPT("min-luma") p->minLuma = (uint16_t)atoi(value);
+    OPT("max-luma") p->maxLuma = (uint16_t)atoi(value);
+    OPT("uhd-bd") p->uhdBluray = atobool(value);
+    else
+        bExtraParams = true;
+
+    // solve "fatal error C1061: compiler limit : blocks nested too deeply"
+    if (bExtraParams)
+    {
+        if (0) ;
+        OPT("csv") p->csvfn = strdup(value);
+        OPT("csv-log-level") p->csvLogLevel = atoi(value);
+        OPT("qpmin") p->rc.qpMin = atoi(value);
+        OPT("analyze-src-pics") p->bSourceReferenceEstimation = atobool(value);
+        OPT("log2-max-poc-lsb") p->log2MaxPocLsb = atoi(value);
+        OPT("vui-timing-info") p->bEmitVUITimingInfo = atobool(value);
+        OPT("vui-hrd-info") p->bEmitVUIHRDInfo = atobool(value);
+        OPT("slices") p->maxSlices = atoi(value);
+        OPT("limit-tu") p->limitTU = atoi(value);
+        OPT("opt-qp-pps") p->bOptQpPPS = atobool(value);
+        OPT("opt-ref-list-length-pps") p->bOptRefListLengthPPS = atobool(value);
+        OPT("multi-pass-opt-rps") p->bMultiPassOptRPS = atobool(value);
+        OPT("scenecut-bias") p->scenecutBias = atof(value);
+        OPT("hist-scenecut") p->bHistBasedSceneCut = atobool(value);
+        OPT("rskip-edge-threshold") p->edgeVarThreshold = atoi(value)/100.0f;
+        OPT("lookahead-threads") p->lookaheadThreads = atoi(value);
+        OPT("opt-cu-delta-qp") p->bOptCUDeltaQP = atobool(value);
+        OPT("multi-pass-opt-analysis") p->analysisMultiPassRefine = atobool(value);
+        OPT("multi-pass-opt-distortion") p->analysisMultiPassDistortion = atobool(value);
+        OPT("aq-motion") p->bAQMotion = atobool(value);
+        OPT("dynamic-rd") p->dynamicRd = atof(value);
+		OPT("cra-nal") p->craNal = atobool(value);
+        OPT("analysis-reuse-level")
         {
             p->vui.bEnableVideoSignalTypePresentFlag = 1;
             p->vui.bEnableVideoFullRangeFlag = parseName(value, x265_fullrange_names, bError);
@@ -2765,79 +2863,82 @@ bool parseMaskingStrength(x265_param* p, const char* value)
         if (src->numaPools) dst->numaPools = strdup(src->numaPools);
         else dst->numaPools = NULL;
 
-        dst->bEnableWavefront = src->bEnableWavefront;
-        dst->bDistributeModeAnalysis = src->bDistributeModeAnalysis;
-        dst->bDistributeMotionEstimation = src->bDistributeMotionEstimation;
-        dst->bLogCuStats = src->bLogCuStats;
-        dst->bEnablePsnr = src->bEnablePsnr;
-        dst->bEnableSsim = src->bEnableSsim;
-        dst->logLevel = src->logLevel;
-        dst->csvLogLevel = src->csvLogLevel;
-        if (src->csvfn) dst->csvfn = strdup(src->csvfn);
-        else dst->csvfn = NULL;
-        dst->internalBitDepth = src->internalBitDepth;
-        dst->sourceBitDepth = src->sourceBitDepth;
-        dst->internalCsp = src->internalCsp;
-        dst->fpsNum = src->fpsNum;
-        dst->fpsDenom = src->fpsDenom;
-        dst->sourceHeight = src->sourceHeight;
-        dst->sourceWidth = src->sourceWidth;
-        dst->interlaceMode = src->interlaceMode;
-        dst->totalFrames = src->totalFrames;
-        dst->levelIdc = src->levelIdc;
-        dst->bHighTier = src->bHighTier;
-        dst->uhdBluray = src->uhdBluray;
-        dst->maxNumReferences = src->maxNumReferences;
-        dst->bAllowNonConformance = src->bAllowNonConformance;
-        dst->bRepeatHeaders = src->bRepeatHeaders;
-        dst->bAnnexB = src->bAnnexB;
-        dst->bEnableAccessUnitDelimiters = src->bEnableAccessUnitDelimiters;
-        dst->bEnableEndOfBitstream = src->bEnableEndOfBitstream;
-        dst->bEnableEndOfSequence = src->bEnableEndOfSequence;
-        dst->bEmitInfoSEI = src->bEmitInfoSEI;
-        dst->decodedPictureHashSEI = src->decodedPictureHashSEI;
-        dst->bEnableTemporalSubLayers = src->bEnableTemporalSubLayers;
-        dst->bOpenGOP = src->bOpenGOP;
-        dst->keyframeMax = src->keyframeMax;
-        dst->keyframeMin = src->keyframeMin;
-        dst->bframes = src->bframes;
-        dst->bFrameAdaptive = src->bFrameAdaptive;
-        dst->bFrameBias = src->bFrameBias;
-        dst->bBPyramid = src->bBPyramid;
-        dst->lookaheadDepth = src->lookaheadDepth;
-        dst->lookaheadSlices = src->lookaheadSlices;
-        dst->lookaheadThreads = src->lookaheadThreads;
-        dst->scenecutThreshold = src->scenecutThreshold;
-        dst->bHistBasedSceneCut = src->bHistBasedSceneCut;
-        dst->bIntraRefresh = src->bIntraRefresh;
-        dst->maxCUSize = src->maxCUSize;
-        dst->minCUSize = src->minCUSize;
-        dst->bEnableRectInter = src->bEnableRectInter;
-        dst->bEnableAMP = src->bEnableAMP;
-        dst->maxTUSize = src->maxTUSize;
-        dst->tuQTMaxInterDepth = src->tuQTMaxInterDepth;
-        dst->tuQTMaxIntraDepth = src->tuQTMaxIntraDepth;
-        dst->limitTU = src->limitTU;
-        dst->rdoqLevel = src->rdoqLevel;
-        dst->bEnableSignHiding = src->bEnableSignHiding;
-        dst->bEnableTransformSkip = src->bEnableTransformSkip;
-        dst->noiseReductionInter = src->noiseReductionInter;
-        dst->noiseReductionIntra = src->noiseReductionIntra;
-        if (src->scalingLists) dst->scalingLists = strdup(src->scalingLists);
-        else dst->scalingLists = NULL;
-        dst->bEnableStrongIntraSmoothing = src->bEnableStrongIntraSmoothing;
-        dst->bEnableConstrainedIntra = src->bEnableConstrainedIntra;
-        dst->maxNumMergeCand = src->maxNumMergeCand;
-        dst->limitReferences = src->limitReferences;
-        dst->limitModes = src->limitModes;
-        dst->searchMethod = src->searchMethod;
-        dst->subpelRefine = src->subpelRefine;
-        dst->searchRange = src->searchRange;
-        dst->bEnableTemporalMvp = src->bEnableTemporalMvp;
-        dst->bEnableFrameDuplication = src->bEnableFrameDuplication;
-        dst->dupThreshold = src->dupThreshold;
-        dst->bEnableHME = src->bEnableHME;
-        if (src->bEnableHME)
+    dst->bEnableWavefront = src->bEnableWavefront;
+    dst->bDistributeModeAnalysis = src->bDistributeModeAnalysis;
+    dst->bDistributeMotionEstimation = src->bDistributeMotionEstimation;
+    dst->bLogCuStats = src->bLogCuStats;
+    dst->bEnablePsnr = src->bEnablePsnr;
+    dst->bEnableSsim = src->bEnableSsim;
+    dst->logLevel = src->logLevel;
+    dst->csvLogLevel = src->csvLogLevel;
+    if (src->csvfn) dst->csvfn = strdup(src->csvfn);
+    else dst->csvfn = NULL;
+    dst->internalBitDepth = src->internalBitDepth;
+    dst->sourceBitDepth = src->sourceBitDepth;
+    dst->internalCsp = src->internalCsp;
+    dst->fpsNum = src->fpsNum;
+    dst->fpsDenom = src->fpsDenom;
+    dst->sourceHeight = src->sourceHeight;
+    dst->sourceWidth = src->sourceWidth;
+    dst->interlaceMode = src->interlaceMode;
+    dst->totalFrames = src->totalFrames;
+    dst->levelIdc = src->levelIdc;
+    dst->bHighTier = src->bHighTier;
+    dst->uhdBluray = src->uhdBluray;
+    dst->maxNumReferences = src->maxNumReferences;
+    dst->bAllowNonConformance = src->bAllowNonConformance;
+    dst->bRepeatHeaders = src->bRepeatHeaders;
+    dst->bAnnexB = src->bAnnexB;
+    dst->bEnableAccessUnitDelimiters = src->bEnableAccessUnitDelimiters;
+    dst->bEnableEndOfBitstream = src->bEnableEndOfBitstream;
+    dst->bEnableEndOfSequence = src->bEnableEndOfSequence;
+    dst->bEmitInfoSEI = src->bEmitInfoSEI;
+    dst->decodedPictureHashSEI = src->decodedPictureHashSEI;
+    dst->bEnableTemporalSubLayers = src->bEnableTemporalSubLayers;
+    dst->bOpenGOP = src->bOpenGOP;
+	dst->craNal = src->craNal;
+    dst->keyframeMax = src->keyframeMax;
+    dst->keyframeMin = src->keyframeMin;
+    dst->bframes = src->bframes;
+    dst->bFrameAdaptive = src->bFrameAdaptive;
+    dst->bFrameBias = src->bFrameBias;
+    dst->bBPyramid = src->bBPyramid;
+    dst->lookaheadDepth = src->lookaheadDepth;
+    dst->lookaheadSlices = src->lookaheadSlices;
+    dst->lookaheadThreads = src->lookaheadThreads;
+    dst->scenecutThreshold = src->scenecutThreshold;
+    dst->bHistBasedSceneCut = src->bHistBasedSceneCut;
+    dst->bIntraRefresh = src->bIntraRefresh;
+    dst->maxCUSize = src->maxCUSize;
+    dst->minCUSize = src->minCUSize;
+    dst->bEnableRectInter = src->bEnableRectInter;
+    dst->bEnableAMP = src->bEnableAMP;
+    dst->maxTUSize = src->maxTUSize;
+    dst->tuQTMaxInterDepth = src->tuQTMaxInterDepth;
+    dst->tuQTMaxIntraDepth = src->tuQTMaxIntraDepth;
+    dst->limitTU = src->limitTU;
+    dst->rdoqLevel = src->rdoqLevel;
+    dst->bEnableSignHiding = src->bEnableSignHiding;
+    dst->bEnableTransformSkip = src->bEnableTransformSkip;
+    dst->noiseReductionInter = src->noiseReductionInter;
+    dst->noiseReductionIntra = src->noiseReductionIntra;
+    if (src->scalingLists) dst->scalingLists = strdup(src->scalingLists);
+    else dst->scalingLists = NULL;
+    dst->bEnableStrongIntraSmoothing = src->bEnableStrongIntraSmoothing;
+    dst->bEnableConstrainedIntra = src->bEnableConstrainedIntra;
+    dst->maxNumMergeCand = src->maxNumMergeCand;
+    dst->limitReferences = src->limitReferences;
+    dst->limitModes = src->limitModes;
+    dst->searchMethod = src->searchMethod;
+    dst->subpelRefine = src->subpelRefine;
+    dst->searchRange = src->searchRange;
+    dst->bEnableTemporalMvp = src->bEnableTemporalMvp;
+    dst->bEnableFrameDuplication = src->bEnableFrameDuplication;
+    dst->dupThreshold = src->dupThreshold;
+    dst->bEnableHME = src->bEnableHME;
+    if (src->bEnableHME)
+    {
+        for (int level = 0; level < 3; level++)
         {
             for (int level = 0; level < 3; level++)
             {
