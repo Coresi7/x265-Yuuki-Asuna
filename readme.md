@@ -8,6 +8,6 @@ To report a bug due to patches, create a new issue here. To report a x265 bug, p
 
 x265 is free to use under the [GNU GPL](https://www.gnu.org/licenses/gpl-2.0.html) and is also available under a commercial license.
 
-Sync status: Commit [7f247b6](https://bitbucket.org/multicoreware/x265_git/commits/7f247b623f12f117c6d6fa8e282996eda9e0ccf7) at 2023-2-21
+Sync status: Commit [2f95fe7](https://bitbucket.org/multicoreware/x265_git/commits/2f95fe7) at 2024-5-8
 
 Please refer to /build/vc22-x86_64/Readme to configure environments and do the build. I dropped to maintain other version of visual studios, just keep them for reference.
